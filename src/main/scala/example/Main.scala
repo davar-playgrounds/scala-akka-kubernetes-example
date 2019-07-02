@@ -10,41 +10,21 @@ import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 import akka.stream.ActorMaterializer
 import akka.util.Timeout
+import example.ExampleActor._
 import org.slf4j.{Logger, LoggerFactory}
 
 import scala.concurrent.duration.DurationInt
 import scala.concurrent.{Await, Future}
-
-// https://www.scala-sbt.org/sbt-native-packager/formats/docker.html
-// https://buildmedia.readthedocs.org/media/pdf/sbt-native-packager/latest/sbt-native-packager.pdf
-// https://doc.akka.io/docs/akka-http/current/introduction.html
-
-/*
-Build in sbt
-docker:publishLocal   will publish to local Docker node
-
-Running
-
-docker run -p 8080:8080 scala-akka-kubernetes-example:0.1
-curl 192.168.99.100:8080/get  or use browser
-
-make sure no container is already running and binding to the port
-docker container list
-docker container list --all
-docker container prune    will remove all stopped containers
-docker image prune        will remove previous not used versions
- */
 
 object Main {
   private val Log: Logger = LoggerFactory.getLogger( this.getClass )
 
   def main( args: Array[String] ) {
     Log.info( "Starting up Akka Docker container ...")
-    Log.info("You can check counter at: http://<IP of your Docker VM>:8080/get ")
-    Log.info("<IP of your Docker VM> is usually 192.168.99.100")
 
     val hostname = InetAddress.getLocalHost().getHostName().toUpperCase()
-    val port = 8080
+    val port = 9090
+    val interface = "0.0.0.0"
 
     implicit val system = ActorSystem( "DockerSystem" )
     implicit val executor = system.dispatcher
@@ -52,20 +32,52 @@ object Main {
     implicit val fm = ActorMaterializer()
 
     val actor = system.actorOf( ExampleActor.props, name = classOf[ExampleActor].getSimpleName )
-    system.getScheduler.scheduleOnce( ExampleActor.Delay, actor, "increment" )
+    system.getScheduler.scheduleOnce( ExampleActor.Delay, actor, EventIncrement( 1 ) )
+
+    def getMethod( id: Int = 0 ) = {
+      val future: Future[Any] = actor ? EventGet( id )
+      onSuccess( future ) { result =>
+        result match {
+          case EventGetResponse( id, count, hostname ) =>
+            val forId = if( id != 0 ) s""" , "id": ${id} """ else ""
+            complete(HttpEntity(ContentTypes.`application/json`, s"""{ "count": ${count} , "hostname": "${hostname}" ${forId} }"""))
+          case _ =>
+            complete(HttpEntity(ContentTypes.`application/json`, s"""{ "message": "Unknown request" }"""))
+        }
+      }
+    }
+
+    def postMethod( requestJson: String ) = {
+      val future: Future[Any] = actor ? EventCalculate( requestJson )
+      onSuccess( future ) { result =>
+        result match {
+          case EventCalculateResponse( json ) =>
+            complete(HttpEntity(ContentTypes.`application/json`, json ))
+          case _ =>
+            complete(HttpEntity(ContentTypes.`application/json`, s"""{ "message": "Unknown request" }"""))
+        }
+      }
+    }
 
     val route: Route =
       get {
-        path( "get" ) {
-          val future: Future[Any] = actor ? "get"
-          onSuccess( future ) { result =>
-            complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, s"Count is now ${result}"))
+        path( "get"  ) {
+          // using 0 as default if parameter 'id' is not provided in the request
+          parameters( 'id.as[Int] ? 0 ) { id =>
+            getMethod( id )
+          }
+        }
+      } ~
+      post {
+        path( "calculate" ) {
+          entity(as[String]) { entity =>
+            postMethod( entity )
           }
         }
       }
 
-    Log.info( s"Binding HTTP service to ${hostname}:${port}" )
-    val bindingFuture = Http().bindAndHandle( route, "0.0.0.0", port )
-    Await.result( bindingFuture, 5 minutes )
+    Log.info( s"Binding HTTP service to ${hostname}:${port} on interface '${interface}'" )
+    val bindingFuture = Http().bindAndHandle( route, interface, port )
+    Await.result( bindingFuture, 60 minutes )
   }
 }

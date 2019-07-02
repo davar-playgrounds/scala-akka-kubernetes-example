@@ -1,0 +1,29 @@
+version: "3"
+services:
+  web:
+    image: krzsam/examples:scala-akka-kubernetes-example-0.3
+    deploy:
+      replicas: 3
+      resources:
+        limits:
+          cpus: "1"
+          memory: 256M
+      restart_policy:
+        condition: on-failure
+    ports:
+      - "9090:9090"
+    networks:
+      - webnet
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+networks:
+  webnet:

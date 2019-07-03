@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: scala-akka-kubernetes-example-deployment
+  labels:
+    app: scala-akka-kubernetes-example
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: scala-akka-kubernetes-example
+  template:
+    metadata:
+      labels:
+        app: scala-akka-kubernetes-example
+    spec:
+      containers:
+        - name: scala-akka-kubernetes-example
+          image: krzsam/examples:scala-akka-kubernetes-example-0.3
+          ports:
+            - containerPort: 8080
+            - containerPort: 9090

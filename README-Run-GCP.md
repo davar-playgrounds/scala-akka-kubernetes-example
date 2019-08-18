@@ -53,7 +53,7 @@ $ docker push gcr.io/kubernetes1-250111/scala-akka-kubernetes-example-0.3
 
 The image can be then seen in Container Registry console:
 
-![screen-1](img/screen-5.png)
+![screen-5](img/screen-5.png)
 
 #### Creating Kubernetes Engine cluster
 
@@ -65,37 +65,37 @@ Parameters of the cluster used:
 * 3 nodes: 1vCPU, 3.75 GB memory, 10GB boot disk
 * Kubernetes version used: 1.13.7-gke.19
 
-![screen-1](img/screen-2.png)
+![screen-2](img/screen-2.png)
 
 The respective VMs created for the cluster can be seen in VM Instances console:
 
-![screen-1](img/screen-3.png)
+![screen-3](img/screen-3.png)
 
 #### Deploying on cluster
 
 The above created image in GCP Container Registry was deployed on the cluster:
 
-![screen-1](img/screen-4.png)
+![screen-4](img/screen-4.png)
 
-![screen-1](img/screen-6.png)
+![screen-6](img/screen-6.png)
 
-![screen-1](img/screen-7.png)
+![screen-7](img/screen-7.png)
 
-![screen-1](img/screen-8.png)
+![screen-8](img/screen-8.png)
 
 Once the engine finishes the deployment, the application and the pods can be seen on the Kubernetes Engine console.
 
-![screen-1](img/screen-9.png)
+![screen-9](img/screen-9.png)
 
-![screen-1](img/screen-10.png)
+![screen-10](img/screen-10.png)
 
 The last step is to expose the deployed application as a service with round-robin load-balancing available via an external IP.
 
-![screen-1](img/screen-11.png)
+![screen-11](img/screen-11.png)
 
-![screen-1](img/screen-12.png)
+![screen-12](img/screen-12.png)
 
-![screen-1](img/screen-13.png)
+![screen-13](img/screen-13.png)
 
 As can be seen the service was exposed on an external IP 35.239.13.76 with port 9090 load-balanced and forwarded to the pods.
 
@@ -137,5 +137,3 @@ $ curl 35.239.13.76:9090/get
 $ curl 35.239.13.76:9090/get
 { "count": 532 , "hostname": "SCALA-AKKA-KUBERNETES-EXAMPLE-8559BB849D-HHN9W"  }
 ```
-
-

@@ -22,11 +22,13 @@ Example application in Scala and Akka which is deployed as a image to Docker Hub
   * __/calculate__ - calculation results are sent as JSON in the body of POST request and then sent to the actor via _EventCalculate_ event. The actor will reply with _EventCalculateResponse_ and the results
     contained in the event will be converted to JSON representation and sent back.
     
-## [Deploying application image to Docker](https://github.com/krzsam/scala-akka-kubernetes-example/tree/master/README-Deploy-Docker.md)
+## [Deploying application image to Docker](README-Deploy-Docker.md)
 
-## [Running image on Docker](https://github.com/krzsam/scala-akka-kubernetes-example/tree/master/README-Run-Docker.md)
+## [Running image on Docker Swarm](README-Run-Docker.md)
 
-## [Running image on Kubernetes (K3S)](https://github.com/krzsam/scala-akka-kubernetes-example/tree/master/README-Run-K3S.md)
+## [Running image on Kubernetes/K3S on AWS](README-Run-K3S.md)
+
+## [Running image on Google Cloud Platform Kubernetes Engine](README-Run-GCP.md)
 
 ## Other notes
 
@@ -51,9 +53,16 @@ Example application in Scala and Akka which is deployed as a image to Docker Hub
   * [Http](https://doc.akka.io/docs/akka-http/current/introduction.html): 10.1.8
 * [Sbt Native Packager](https://github.com/sbt/sbt-native-packager): 1.3.23
 * Scala: 2.12.8
-* Infrastructure (for K3S)
-  * AWS, 3 nodes _t3a.xlarge_ (4 processors, 16GB memory)
+* [Google Cloud Platform](https://console.cloud.google.com/)
+    * [gcloud commandline tool](https://cloud.google.com/sdk/gcloud/)
+
+## Infrastructure 
+* For K3S on Amazon Web Services (AWS)
+  * 3 nodes _t3a.xlarge_ (4 processors, 16GB memory)
   * For simplicity, all network traffic on all TCP and UDP ports is enabled in between each of the nodes
-    * ip-172-31-33-90 : _Master_ (also serves as _Worker_ node)
+    * ip-172-31-33-90 : _Master_ and _Worker_ node
     * ip-172-31-43-15 : _Worker_ node
     * ip-172-31-36-57 : _Worker_ node
+* For Google Cloud Platform (GCP)
+    * Kubernetes Engine with pool of 3 x *n1-standard-1* (1 vCPU, 3.75 GB memory)
+    * Kubernetes 1.13.7-gke.19

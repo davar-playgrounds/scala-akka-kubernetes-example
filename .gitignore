@@ -1,2 +1,6 @@
 *.class
 *.log
+/target/
+/project/target/
+/.idea/
+/project/project/target/config-classes/$eb8a723cc8b1a6289053.cache

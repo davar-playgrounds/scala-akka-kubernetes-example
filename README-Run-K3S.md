@@ -1,4 +1,4 @@
-## Running image on Kubernetes (K3S)
+## Running image on Kubernetes/K3S on AWS
 
 #### Environment preparation
 
